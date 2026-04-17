@@ -4,6 +4,7 @@ import 'dotenv/config.js'
 import {connectDB} from "./config/db.js";
 import userRouter from "./routes/userRoutes.js";
 import incomeRouter from "./routes/incomeRoutes.js";
+import expenseRouter from "./routes/expenseRoutes.js";
 
 const app = express()
 const port = 4000
@@ -15,7 +16,8 @@ app.use(express.urlencoded({ extended: true }))
 
 // ROUTES
 app.use("/api/user", userRouter)
-app.use("/api/incomr", incomeRouter)
+app.use("/api/income", incomeRouter)
+app.use("/api/expense", expenseRouter)
 app.get('/', (req, res) => {
     res.send('API WORKING')
 })
