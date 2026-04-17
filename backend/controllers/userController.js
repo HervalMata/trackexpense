@@ -135,8 +135,14 @@ export async function updateUserProfile(req, res) {
         const user = await User.findByIdAndUpdate(
             req.user.id,
             { name, email },
-            { new: true, runValidators: true, select: "name email" },
-        )
+            { new: true, runValidators: true },
+        ).select("name email")
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Usuário não encontrado!"
+            })
+        }
         return res.json({
             success: true,
             user,
@@ -153,7 +159,7 @@ export async function updateUserProfile(req, res) {
 // CHANGE USER PASSWORD
 export async function updatePassword(req, res) {
     const { currentPassword, newPassword } = req.body
-    if (!currentPassword || !newPassword || !newPassword.length < 8) {
+    if (!currentPassword || !newPassword || newPassword.length < 8) {
         return res.status(400).json({
             success: false,
             message: "Senha invalida ou muito curta."
