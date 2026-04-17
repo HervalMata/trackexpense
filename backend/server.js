@@ -11,13 +11,13 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// DB
-connectDB()
-
 // ROUTES
 app.get('/', (req, res) => {
     res.send('API WORKING')
 })
+
+// DB
+await connectDB()
 
 app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`)
