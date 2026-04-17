@@ -1,4 +1,4 @@
-import IncomeModel from "../models/incomeModel"
+import IncomeModel from "../models/incomeModel.js"
 import XLSX from "xlsx";
 import getDataRange from "../utils/dateFilter.js";
 
@@ -7,7 +7,7 @@ export async function addIncome(req, res) {
     const userId = req.user._id
     const {description, amount, category, date} = req.body
     try {
-        if (!description || !amount || !category || !date) {
+        if (!description || amount === undefined || amount === null || !category || !date) {
             res.status(400).json({
                 success: false,
                 message: 'Todos os campos são requeridos',
@@ -55,18 +55,18 @@ export async function updateIncome(req, res) {
     const userId = req.user._id
     const {description, amount} = req.body
     try {
-        const updatedIncome = new IncomeModel.findByIdAndUpdate(
+        const updatedIncome = await IncomeModel.findByIdAndUpdate(
             { _id: id, userId },
             { description, amount },
-            { new: true }
+            { new: true, runValidators: true },
         )
         if (!updatedIncome) {
-            res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 message: "Lançamento não encontrado."
             })
         }
-        res.json({
+        return res.json({
             success: true,
             message: "Lançamento atualizado com sucesso!",
             data: updatedIncome
@@ -82,10 +82,11 @@ export async function updateIncome(req, res) {
 
 // DELETE AN INCOME
 export async function deleteIncome(req, res) {
+    const userId = req.user._id
     try {
-        const income = await IncomeModel.findByIdAndDelete({ _id: req.params.id })
+        const income = await IncomeModel.findByIdAndDelete({ _id: req.params.id, userId })
         if (!income) {
-            res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 message: "Lançamento não encontrado.",
             })
@@ -117,8 +118,13 @@ export async function downloadIncomeExcel(req, res) {
         const worksheet = XLSX.utils.json_to_sheet(plainData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "incomeModel");
-        XLSX.writeFile(workbook, `income_details.xlsx`)
-        res.download(`income_details.xlsx`)
+        const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" })
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        res.setHeader("Content-Disposition", 'attachment; filename="income_details.xlsx"');
+        return res.send(buffer)
     } catch (error) {
         console.error(error)
         res.status(500).json({
