@@ -8,7 +8,7 @@ export async function addExpense(req, res) {
     const {description, amount, category, date} = req.body
     try {
         if (!description || amount === undefined || amount === null || !category || !date) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: 'Todos os campos são requeridos',
             })
@@ -21,7 +21,7 @@ export async function addExpense(req, res) {
             date: new Date(date),
         })
         await newExpense.save()
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: 'Lançamento criado com sucesso!',
         })
@@ -55,7 +55,7 @@ export async function updateExpense(req, res) {
     const userId = req.user._id
     const {description, amount} = req.body
     try {
-        const updatedExpense = await ExpenseModel.findByIdAndUpdate(
+        const updatedExpense = await ExpenseModel.findOneAndUpdate(
             { _id: id, userId },
             { description, amount },
             { new: true, runValidators: true },
@@ -84,7 +84,7 @@ export async function updateExpense(req, res) {
 export async function deleteExpense(req, res) {
     const userId = req.user._id
     try {
-        const expense = await ExpenseModel.findByIdAndDelete({ _id: req.params.id, userId })
+        const expense = await ExpenseModel.findOneAndDelete({ _id: req.params.id, userId })
         if (!expense) {
             return res.status(404).json({
                 success: false,

@@ -20,7 +20,7 @@ export async function getDashboardOverview(req, res) {
         const savingsRate = monthlyIncome === 0 ? 0 : Math.round((savings / monthlyIncome) * 100)
         const recentTransactions = [
             ...incomes.map((i) => ({ ...i, type: "income" })),
-            ...expenses.map((e) => ({ ...i, type: "expense" })),
+            ...expenses.map((e) => ({ ...e, type: "expense" })),
         ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         const spendByCategory = {}
         for (const exp of expenses) {

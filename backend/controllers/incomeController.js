@@ -55,7 +55,7 @@ export async function updateIncome(req, res) {
     const userId = req.user._id
     const {description, amount} = req.body
     try {
-        const updatedIncome = await IncomeModel.findByIdAndUpdate(
+        const updatedIncome = await IncomeModel.findOneAndUpdate(
             { _id: id, userId },
             { description, amount },
             { new: true, runValidators: true },
@@ -84,7 +84,7 @@ export async function updateIncome(req, res) {
 export async function deleteIncome(req, res) {
     const userId = req.user._id
     try {
-        const income = await IncomeModel.findByIdAndDelete({ _id: req.params.id, userId })
+        const income = await IncomeModel.findOneAndDelete({ _id: req.params.id, userId })
         if (!income) {
             return res.status(404).json({
                 success: false,
