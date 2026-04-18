@@ -6,10 +6,11 @@ const getDataRange = (range) => {
         case "daily":
             start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             break;
-        case "weekly":
+        case "weekly": {
             const firstDayOfWeek = now.getDate() - now.getDay();
-            start = new Date(now.setDate(firstDayOfWeek));
+            start = new Date(now.getFullYear(), now.getMonth(), firstDayOfWeek);
             break;
+        }
         case "monthly":
             start = new Date(now.getFullYear(), now.getMonth(), 1);
             break;
