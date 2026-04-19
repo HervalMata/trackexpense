@@ -58,7 +58,12 @@ const Navbar = ({ user: propUser, onLogout}) => {
 
     const handlelogout = () => {
         setMenuOpen(false);
-        onLogout();
+        if (typeof onLogout === "function") {
+            onLogout();
+        } else {
+            localStorage.removeItem("token");
+            navigate("/login");
+        }
     }
 
     return (
