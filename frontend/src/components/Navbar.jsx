@@ -7,16 +7,17 @@ import {useEffect, useRef, useState} from "react";
 import {ChevronDown, LogOut, User} from "lucide-react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Navbar = ({ user: propUser, onLogout}) => {
     const [menuOpen, setMenuOpen] = useState(false)
+    const [fetchedUser, setFetchedUser] = useState(null)
     const navigate = useNavigate();
     const menuRef = useRef();
 
-    const user = propUser || {
-        name: "",
-        email: "",
+    const user = propUser || fetchedUser || {
+        name: '',
+        email: '',
     }
 
     useEffect(() => {
@@ -24,15 +25,13 @@ const Navbar = ({ user: propUser, onLogout}) => {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
-                const response = await axios.get(`${BASE_URL}/user/me`, {
+                const response = await axios.get(`${API_BASE_URL}/user/me`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 })
                 const userData = response.data.user || response.data;
-
-
-                setUser(userData);
+                setFetchedUser(userData);
             } catch (error) {
                 console.error("Falha ao carregar dados do perfil", error);
             }
@@ -59,9 +58,7 @@ const Navbar = ({ user: propUser, onLogout}) => {
 
     const handlelogout = () => {
         setMenuOpen(false);
-        localStorage.removeItem("token");
-        onLogout?.();
-        navigate("/login");
+        onLogout();
     }
 
     return (
