@@ -11,7 +11,7 @@ const MENU_ITEMS = [
     { text: "Perfil", path: "/profile", icon: <User size={20} /> },
 ]
 
-const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
+const Sidebar = ({ user, isCollapsed, setIsCollapsed, onLogout }) => {
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const sidebarRef = useRef(null);
@@ -19,7 +19,7 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
     const [mobileOpen, setMobileOpen] = useState(false)
     const [activeHover, setActiveHover] = useState(null)
 
-    const {name: username = "User", email= "user@xample.com"} = user || {};
+    const { name: username = "User", email = "user@expensetracker.com" } = user || {};
     const initial = username.charAt(0).toUpperCase();
 
     // To Check For Overflow In Mobile
@@ -42,11 +42,16 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
     }, [mobileOpen]);
 
     const handlelogout = () => {
-        localStorage.removeItem("token");
-        navigate("/login");
+        setMobileOpen(false)
+        if (typeof onLogout === "function") {
+            onLogout();
+        } else {
+            localStorage.removeItem("token");
+            navigate("/login");
+        }
     }
 
-    const toggleSidebar = setIsCollapsed((c) => !c)
+    const toggleSidebar = () => setIsCollapsed((c) => !c)
 
     const renderMenuItem = ({ text, path, icon }) => {
         const isActive = pathname === path
@@ -103,7 +108,7 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
                     >
                         <motion.div
                             initial={{ rotate: 0 }}
-                            animate={{ rotate: isCollapsed ? 0 : 250 }}
+                            animate={{ rotate: isCollapsed ? 0 : 180 }}
                             transition={{ duration: 0.3 }}
                         >
                             <svg
@@ -168,7 +173,7 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
                                 sidebarStyles.footerLink.base,
                                 isCollapsed && sidebarStyles.footerLink.collapsed
                             )}
-                            to=""
+                            to="/"
                         >
                             <HelpCircle size={20} className="text-gray-500" />
                             {!isCollapsed && <span>Suporte</span>}
@@ -195,6 +200,7 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
                 {mobileOpen ? <X size={24} /> : <Menu size={24} /> }
             </motion.button>
             <AnimatePresence>
+                {mobileOpen && (
                 <motion.div
                     className={sidebarStyles.mobileOverlay}
                     initial={{ opacity: 0 }}
@@ -272,7 +278,7 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
                                         sidebarStyles.footerLink.base,
                                         isCollapsed && sidebarStyles.footerLink.collapsed
                                     )}
-                                    to=""
+                                    to="/"
                                     onClick={() => setMobileOpen(false)}
                                 >
                                     <HelpCircle size={20} className="text-gray-500" />
@@ -292,6 +298,7 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed}) => {
                         </div>
                     </motion.div>
                 </motion.div>
+                )}
             </AnimatePresence>
         </>
     )
