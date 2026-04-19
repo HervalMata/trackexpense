@@ -5,17 +5,18 @@ import {useEffect, useMemo, useState} from "react";
 import {
     Activity, ArrowDown,
     ArrowUp,
-    Car,
+    Car, ChevronDown, Clock,
     CreditCard,
     DollarSign,
     Gift,
-    Home,
-    PiggyBank,
-    ShoppingCart,
+    Home, Info, PieChart,
+    PiggyBank, RefreshCw,
+    ShoppingCart, TrendingUp,
     Utensils,
-    Zap
+    Zap,
 } from "lucide-react";
 import axios from "axios";
+import {Outlet} from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const CATEGORY_ICONS = {
@@ -26,9 +27,9 @@ const CATEGORY_ICONS = {
     Lazer: <Gift className="w-4 h-4" />,
     Utilidades: <Zap className="w-4 h-4" />,
     Saúde: <Activity className="w-4 h-4" />,
-    Sálario: <ArrowUp className="w-4 h-4" />,
+    Salário: <ArrowUp className="w-4 h-4" />,
     Impostos: <CreditCard className="w-4 h-4" />,
-    Investimnto: <PiggyBank className="w-4 h-4" />,
+    Investimento: <PiggyBank className="w-4 h-4" />,
 }
 
 // To Filter
@@ -96,8 +97,8 @@ const Layout = ({onLogout, user}) => {
             const allTransactions = [...incomes, ...expenses].map((t) => ({
                 id: t._id || t.id || t.id_str || Math.random().toString(36).slice(2),
                 description: t.description || t.title || t.note || "",
-                amount: t.amount !== null ? Number(t.amount) : Number(t.value) || 0,
-                date: t.date || t.createdAt || new Date().toDateString(),
+                amount: t.amount != null ? Number(t.amount) : Number(t.value) || 0,
+                date: t.date || t.createdAt || new Date().toISOString(),
                 category: t.category || t.type || "Outras",
                 type: t.type,
                 raw: t,
@@ -148,11 +149,11 @@ const Layout = ({onLogout, user}) => {
             const token = localStorage.getItem("token");
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
             const endpoint = type === "income" ? "income/delete" : "expense/delete";
-            await axios.put(`${API_BASE_URL}/${endpoint}/${id}`,{ headers })
+            await axios.delete(`${API_BASE_URL}/${endpoint}/${id}`,{ headers })
             await fetchTransactions()
             return true
         } catch (error) {
-            console.error("Falha ao removrr uma transação", error?.response || error.message || error);
+            console.error("Falha ao remover uma transação", error?.response || error.message || error);
             throw error
         }
     }
@@ -293,7 +294,7 @@ const Layout = ({onLogout, user}) => {
                         </div>
                         <p className={styles.statCards.cardFooter}>
                             <span className="text-teal-600 font-medium">
-                                +R$ {stats.last30DaysSavings.toLocaleString("pt-Br", {maximumFractionDigits: 2})}
+                                +R$ {stats.last30DaysSavings.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                             </span>{" "}
                             Esse Mês
                         </p>
@@ -305,7 +306,7 @@ const Layout = ({onLogout, user}) => {
                             <div>
                                 <p className={styles.statCards.cardTitle}>Receita Mensal</p>
                                 <p className={styles.statCards.cardValue}>
-                                    R$ {stats.last30DaysIncomes.toLocaleString("pt-Br", {maximumFractionDigits: 2})}
+                                    R$ {stats.last30DaysIncomes.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                 </p>
                             </div>
                             <div className={styles.statCards.iconContainer("green")}>
@@ -316,7 +317,7 @@ const Layout = ({onLogout, user}) => {
                             <span className="text-green-600 font-medium">
                                 +12,5%
                             </span>{" "}
-                            No ùltimo Mês
+                            No último Mês
                         </p>
                     </div>
 
@@ -326,7 +327,7 @@ const Layout = ({onLogout, user}) => {
                             <div>
                                 <p className={styles.statCards.cardTitle}>Despesas Mensais</p>
                                 <p className={styles.statCards.cardValue}>
-                                    R$ {stats.last30DaysExpenses.toLocaleString("pt-Br", {maximumFractionDigits: 2})}
+                                    R$ {stats.last30DaysExpenses.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                 </p>
                             </div>
                             <div className={styles.statCards.iconContainer("orange")}>
@@ -335,8 +336,7 @@ const Layout = ({onLogout, user}) => {
                         </div>
                         <p className={styles.statCards.cardFooter}>
                             <span className={`${styles.colors.expenseChange(stats.expenseChange)} font-medium`}>
-                                +R$ {stats.expenseChange > 0 ? "+"  : ""}
-                                {stats.expenseChange}%
+                                {stats.expenseChange > 0 ? "+"  : ""} {stats.expenseChange}%
                             </span>{" "}
                             Esse Mês
                         </p>
@@ -356,13 +356,161 @@ const Layout = ({onLogout, user}) => {
                             </div>
                         </div>
                         <p className={styles.statCards.cardFooter}>
-                            {getSavingsRating(stats.savingsRate)}
-                            Esse Mês
+                            {getSavingsRating(stats.savingsRate)}{" "}Esse Mês
                         </p>
                     </div>
                 </div>
 
-                
+                <div className={styles.grid.main}>
+                    <div className={styles.grid.leftColumn}>
+                        <div className={styles.cards.base}>
+                            <div className={styles.cards.header}>
+                                <h3 className={styles.cards.title}>
+                                    <TrendingUp className="w-6 h- text-teal-500" />
+                                    Resumo Financeiro
+                                    <span className="text-sm text-gray-500 font-normal">
+                                    ({timeFrameLabel})
+                                </span>
+                                </h3>
+                            </div>
+                            <Outlet context={outletContext} />
+                        </div>
+                    </div>
+
+                    {/* Right Side */}
+                    <div className={styles.grid.rightColumn}>
+                        <div className={styles.cards.base}>
+                            <div className={styles.transactions.cardHeader}>
+                                <h3 className={styles.transactions.cardTitle}>
+                                    <Clock className="w-6 h-6 text-purple-500" />
+                                    Lançamentos Recentes
+                                </h3>
+                                <button
+                                    onClick={fetchTransactions}
+                                    disabled={loading}
+                                    className={styles.transactions.refreshButton}
+                                >
+                                    <RefreshCw className={styles.transactions.refreshIcon(loading)} />
+                                </button>
+                            </div>
+                            <div className={styles.transactions.dataStackingInfo}>
+                                <Info className={styles.transactions.dataStackingIcon} />
+                                <span>Lançamentos são mostrados por data (os mais novos primeiro)</span>
+                            </div>
+                            <div className={styles.transactions.listContainer}>
+                                {displayedTransactions.map((transaction) => {
+                                    const {id, type, category, description, date, amount} = transaction
+                                    return (
+                                        <div
+                                            key={id}
+                                            className={styles.transactions.transactionItem}
+                                        >
+                                            <div className="flex items-center gap-1 md:gap4 lg:gap3">
+                                                <div className={`p-2 rounded-lg ${styles.colors.transaction.bg(type)}`}>
+                                                    {CATEGORY_ICONS[category] ||(
+                                                        <DollarSign className={styles.transactions.icon} />
+                                                    )}
+                                                </div>
+                                                <div className={styles.transactions.details}>
+                                                    <p className={styles.transactions.description}>
+                                                        {description}
+                                                    </p>
+                                                    <p className={styles.transactions.meta}>
+                                                        {new Date(date).toLocaleDateString("pt-BR")}
+                                                        <span className="ml-2 capitalize">
+                                                            {category}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span className={styles.colors.transaction.text(type)}>
+                                                {type === "income" ? "+" : "-"} ${Number(amount)}
+                                            </span>
+                                        </div>
+                                    )
+                                })}
+                                {transactions.length === 0 ? (
+                                    <div className={styles.transactions.emptyState}>
+                                        <div className={styles.transactions.emptyIconContainer}>
+                                            <Clock className={styles.transactions.emptyIcon} />
+                                        </div>
+                                        <p className={styles.transactions.emptyText}>
+                                            Nenhum lançamento recente
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className={styles.transactions.viewAllContainer}>
+                                        <button
+                                            onClick={() => setShowAllTransactions(!showAllTransactions)}
+                                            className={styles.transactions.viewAllButton}
+                                        >
+                                            {showAllTransactions ? (
+                                                <>
+                                                    <ChevronUp className="w-5 h-5" />
+                                                    Mostrar menos
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ChevronDown className="w-5 h-5" />
+                                                    Vê todos os lançamentos ({transactions.length})
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        {/* Spending By Category Card */}
+                        <div className={styles.cards.base}>
+                            <h3 className={styles.categories.title}>
+                                <PieChart className={styles.categories.titleIcon} />
+                                Descontos Por Categoria
+                            </h3>
+                            <div className={styles.categories.list}>
+                                {topCategories.map(([category, amount]) => (
+                                    <div
+                                        key={category}
+                                        className={styles.categories.categoryItem}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={styles.categories.categoryIconContainer}>
+                                                {CATEGORY_ICONS[category] ||(
+                                                    <DollarSign className={styles.categories.categoryIcon} />
+                                                )}
+                                            </div>
+                                            <span className={styles.categories.categoryName}>
+                                                {category}
+                                            </span>
+                                        </div>
+                                        <span className={styles.categories.categoryAmount}>
+                                                R$ {amount.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className={styles.categories.summaryContainer}>
+                                <div className={styles.categories.summaryGrid}>
+                                    <div className={styles.categories.summaryIncomeCard}>
+                                        <p className={styles.categories.summaryTitle}>
+                                            Total de Receitas
+                                        </p>
+                                        <p className={styles.categories.summaryValue}>
+                                            R$ {stats.allTimeIncomes.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                        </p>
+                                    </div>
+                                    <div className={styles.categories.summaryIncomeCard}>
+                                        <p className={styles.categories.summaryTitle}>
+                                            Total de Descontos
+                                        </p>
+                                        <p className={styles.categories.summaryValue}>
+                                            R$ {stats.allTimeExpenses.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
