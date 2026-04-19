@@ -5,7 +5,7 @@ import {useEffect, useMemo, useState} from "react";
 import {
     Activity, ArrowDown,
     ArrowUp,
-    Car, ChevronDown, Clock,
+    Car, ChevronDown, ChevronUp, Clock,
     CreditCard,
     DollarSign,
     Gift,
@@ -293,8 +293,8 @@ const Layout = ({onLogout, user}) => {
                             </div>
                         </div>
                         <p className={styles.statCards.cardFooter}>
-                            <span className="text-teal-600 font-medium">
-                                +R$ {stats.last30DaysSavings.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                            <span className={`${stats.last30DaysSavings >= 0 ? "text-teal-600" : "text-orange-600"} font-medium`}>
+                                {stats.last30DaysSavings >= 0 ? "+" : "-" } R$ {Math.abs(stats.last30DaysSavings).toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                             </span>{" "}
                             Esse Mês
                         </p>
@@ -306,7 +306,7 @@ const Layout = ({onLogout, user}) => {
                             <div>
                                 <p className={styles.statCards.cardTitle}>Receita Mensal</p>
                                 <p className={styles.statCards.cardValue}>
-                                    R$ {stats.last30DaysIncomes.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                    R$ {Math.abs(stats.last30DaysIncomes).toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                 </p>
                             </div>
                             <div className={styles.statCards.iconContainer("green")}>
@@ -327,7 +327,7 @@ const Layout = ({onLogout, user}) => {
                             <div>
                                 <p className={styles.statCards.cardTitle}>Despesas Mensais</p>
                                 <p className={styles.statCards.cardValue}>
-                                    R$ {stats.last30DaysExpenses.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                    R$ {Math.abs(stats.last30DaysExpenses).toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                 </p>
                             </div>
                             <div className={styles.statCards.iconContainer("orange")}>
@@ -366,7 +366,7 @@ const Layout = ({onLogout, user}) => {
                         <div className={styles.cards.base}>
                             <div className={styles.cards.header}>
                                 <h3 className={styles.cards.title}>
-                                    <TrendingUp className="w-6 h- text-teal-500" />
+                                    <TrendingUp className="w-6 h-6 text-teal-500" />
                                     Resumo Financeiro
                                     <span className="text-sm text-gray-500 font-normal">
                                     ({timeFrameLabel})
@@ -386,6 +386,9 @@ const Layout = ({onLogout, user}) => {
                                     Lançamentos Recentes
                                 </h3>
                                 <button
+                                    type="button"
+                                    aria-label="Atualizar Lançamentos"
+                                    title="Atualizar Lançamentos"
                                     onClick={fetchTransactions}
                                     disabled={loading}
                                     className={styles.transactions.refreshButton}
@@ -405,7 +408,7 @@ const Layout = ({onLogout, user}) => {
                                             key={id}
                                             className={styles.transactions.transactionItem}
                                         >
-                                            <div className="flex items-center gap-1 md:gap4 lg:gap3">
+                                            <div className="flex items-center gap-1 md:gap-4 lg:gap-3">
                                                 <div className={`p-2 rounded-lg ${styles.colors.transaction.bg(type)}`}>
                                                     {CATEGORY_ICONS[category] ||(
                                                         <DollarSign className={styles.transactions.icon} />
@@ -424,7 +427,8 @@ const Layout = ({onLogout, user}) => {
                                                 </div>
                                             </div>
                                             <span className={styles.colors.transaction.text(type)}>
-                                                {type === "income" ? "+" : "-"} ${Number(amount)}
+                                                {type === "income" ? "+" : "-"}{" "}
+                                                ${Number(amount).toLocaleString("pt-BR", {style: "currency", currency: "BRL"})}
                                             </span>
                                         </div>
                                     )
@@ -483,7 +487,7 @@ const Layout = ({onLogout, user}) => {
                                             </span>
                                         </div>
                                         <span className={styles.categories.categoryAmount}>
-                                                R$ {amount.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                                R$ {Math.abs(amount).toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                         </span>
                                     </div>
                                 ))}
@@ -495,7 +499,7 @@ const Layout = ({onLogout, user}) => {
                                             Total de Receitas
                                         </p>
                                         <p className={styles.categories.summaryValue}>
-                                            R$ {stats.allTimeIncomes.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                            R$ {Math.abs(stats.allTimeIncomes).toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                         </p>
                                     </div>
                                     <div className={styles.categories.summaryIncomeCard}>
@@ -503,7 +507,7 @@ const Layout = ({onLogout, user}) => {
                                             Total de Descontos
                                         </p>
                                         <p className={styles.categories.summaryValue}>
-                                            R$ {stats.allTimeExpenses.toLocaleString("pt-BR", {maximumFractionDigits: 2})}
+                                            R$ {Math.abs(stats.allTimeExpenses).toLocaleString("pt-BR", {maximumFractionDigits: 2})}
                                         </p>
                                     </div>
                                 </div>
