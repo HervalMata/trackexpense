@@ -5,6 +5,9 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Layout from "./components/Layout.jsx";
 import {useState} from "react";
 import Login from "./components/Login.jsx";
+import Signup from "./components/Signup.jsx";
+
+const DEFAULT_API_URL = import.meta.env.VITE_API_BASE_URL
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -46,7 +49,7 @@ const App = () => {
     }
 
     const handleLogin = (userData, remember = false, tokenFromApi = null) => {
-        persistAuth(userData, remember, tokenFromApi);
+        persistAuth(userData, tokenFromApi, remember);
         navigate("/");
     }
 
@@ -55,10 +58,16 @@ const App = () => {
         navigate("/login");
     }
 
+    const handleSignup = (userData, remember = false, tokenFromApi = null) => {
+        persistAuth(userData, tokenFromApi, remember);
+        navigate("/");
+    }
+
     return (
       <>
         <Routes>
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/signup" element={<Signup onSignup={handleSignup} />} />
             <Route element={<Layout user={user} onLogout={handleLogout} />}>
                 <Route path="/" element={<Dashboard />} />
             </Route>
