@@ -132,8 +132,8 @@ const Signup = ({ onSignup, API_URL = DEFAULT_API_URL }) => {
                         Se junte a nós para gerenciar suas finanças
                     </p>
                 </div>
-                <div className={signupStyles.formContainer} role="alert" aria-live="assertive">
-                    {errors.api && <p className={signupStyles.apiError}>{errors.api}</p> }
+                <div className={signupStyles.formContainer}>
+                    {errors.api && <p className={signupStyles.apiError} role="alert" aria-live="assertive">{errors.api}</p> }
                     <form onSubmit={handleSubmit} noValidate>
                         <div className="mb-6">
                             <label htmlFor="name" className={signupStyles.label}>
@@ -144,7 +144,8 @@ const Signup = ({ onSignup, API_URL = DEFAULT_API_URL }) => {
                                     <User className="w-5 h-5" />
                                 </div>
                                 <input
-                                    type="name"
+                                    type="text"
+                                    autoComplete="name"
                                     id="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
