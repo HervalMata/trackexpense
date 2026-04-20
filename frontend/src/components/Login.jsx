@@ -4,7 +4,9 @@ import {useState} from "react";
 import {useNavigate, Link} from "react-router-dom";
 import axios from "axios";
 
-const Login = ({onLogin, API_URL = "http://localhost:4000"}) => {
+const DEFAULT_API_URL = import.meta.env.VITE_API_BASE_URL
+
+const Login = ({ onLogin, API_URL = DEFAULT_API_URL }) => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
@@ -103,7 +105,7 @@ const Login = ({onLogin, API_URL = "http://localhost:4000"}) => {
                 </div>
                 <div className={loginStyles.formContainer}>
                     {error && (
-                        <div className={loginStyles.errorContainer}>
+                        <div className={loginStyles.errorContainer} role="alert" aria-live="assertive">
                             <div className={loginStyles.errorIcon}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path
@@ -159,6 +161,8 @@ const Login = ({onLogin, API_URL = "http://localhost:4000"}) => {
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className={loginStyles.passwordToggle}
+                                    aria-label={showPassword ? "Ocultar Senha" : "Mostrar Senha"}
+                                    title={showPassword ? "Ocultar Senha" : "Mostrar Senha"}
                                 >
                                     {showPassword ? (
                                         <EyeOff className="w-5 h-5" />
@@ -175,7 +179,6 @@ const Login = ({onLogin, API_URL = "http://localhost:4000"}) => {
                                 checked={rememberMe}
                                 onChange={(e) => setRememberMe(e.target.checked)}
                                 className={loginStyles.checkbox}
-                                required
                             />
                             <label htmlFor="remember" className={loginStyles.checkboxLabel}>
                                 Lembrar-me

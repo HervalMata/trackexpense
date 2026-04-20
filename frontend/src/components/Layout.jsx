@@ -428,7 +428,7 @@ const Layout = ({onLogout, user}) => {
                                             </div>
                                             <span className={styles.colors.transaction.text(type)}>
                                                 {type === "income" ? "+" : "-"}{" "}
-                                                ${Number(amount).toLocaleString("pt-BR", {style: "currency", currency: "BRL"})}
+                                                ${Math.abs(Number(amount) || 0).toLocaleString("pt-BR", {style: "currency", currency: "BRL"})}
                                             </span>
                                         </div>
                                     )
