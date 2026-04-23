@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 import {ChevronDown, LogOut, User} from "lucide-react";
 import axios from "axios";
+import Add from "./Add.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -77,7 +78,9 @@ const Navbar = ({ user: propUser, onLogout}) => {
                     <span className={navbarStyles.logoText}>
                         Gerenciador de Rendimentos
                     </span>
+
                 </div>
+                <Add />
                 {/* If The User Is Present */}
                 {user && (
                     <div className={navbarStyles.userContainer} ref={menuRef}>

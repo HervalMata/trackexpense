@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import {Outlet} from "react-router-dom";
+import Add from "./Add.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const CATEGORY_ICONS = {
@@ -277,7 +278,9 @@ const Layout = ({onLogout, user}) => {
                     <div>
                         <h1 className={styles.header.title}>Dashboard</h1>
                         <p className={styles.header.subtitle}>Bemvindo de volta</p>
+
                     </div>
+                    <Add type="both" />
                 </div>
                 <div className={styles.statCards.grid}>
                     <div className={styles.statCards.card}>

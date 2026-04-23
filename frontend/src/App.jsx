@@ -17,7 +17,7 @@ const getTransactionsFromStorage = () => {
 }
 
 //To Protect The Routes
-const ProtectedRoute = ({user, children}) => {
+/*const ProtectedRoute = ({user, children}) => {
     const localToken = localStorage.getItem("token");
     const sessionToken = sessionStorage.getItem("token");
     const hasToken = localToken || sessionToken;
@@ -26,7 +26,7 @@ const ProtectedRoute = ({user, children}) => {
         return <Navigate to="/login" replace />;
     }
     return children
-}
+}*/
 
 // To Scroll To Top When Page Gets Reload Or New Page Is Visited
 const ScrollTop = () => {
@@ -40,9 +40,14 @@ const ScrollTop = () => {
 const App = () => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [transactions, setTransactions] = useState([])
+    const [isLoading, setIsLoading] = useState(true);
+    const [transactions, setTransactions] = useState(() => {
+        try {
+            return getTransactionsFromStorage()
+        } catch (txError) {
+            console.error("Erro ao carregar os lançamentos", txError)
+        }
+    })
     const navigate = useNavigate();
 
     const clearAuth = () => {
@@ -87,7 +92,7 @@ const App = () => {
         if (localToken) {
             localStorage.setItem("user", JSON.stringify(updatedUser));
         } else if (sessionToken) {
-            sessionStorage.setItem("token", JSON.stringify(updatedUser));
+            sessionStorage.setItem("user", JSON.stringify(updatedUser));
         }
     }
 
@@ -106,7 +111,7 @@ const App = () => {
                 if (storedUser) {
                     setUser(storedUser);
                     setToken(storedToken);
-                    setLoading(false);
+                    setIsLoading(false);
                     return;
                 }
                 if (storedToken) {
@@ -114,7 +119,8 @@ const App = () => {
                         const res = await axios.get(`${DEFAULT_API_URL}/user/me`, {
                             headers: {Authorization: `Bearer ${storedToken}`},
                         })
-                        const profile = res.data
+                        const profile = res.data?.user
+                        if (!profile) throw new Error("Resposta com perfil invalido")
                         persistAuth(profile, storedToken, tokenFromLocal);
                     } catch (fetchError) {
                         console.warn("Não foi possivel carregar o perfil com o token fornecido", fetchError);
@@ -124,12 +130,7 @@ const App = () => {
             } catch (error) {
                 console.error("Erro no Auth", error);
             } finally {
-                setLoading(false);
-                try {
-                    setTransactions(getTransactionsFromStorage());
-                } catch (txError) {
-                    console.error("Erro carregando os lançamentos", txError);
-                }
+                setIsLoading(false);
             }
         })()
     }, []);
@@ -159,7 +160,7 @@ const App = () => {
 
     // Transaction Helpers
     const addTransaction = (newTransaction) => setTransactions((p) => [newTransaction, ...p])
-    const editTransaction = (id, updatedTransaction) => setTransactions((p) => p.map((t) => t.id === id ? { ...updatedTransaction } : t))
+    const editTransaction = (id, updatedTransaction) => setTransactions((p) => p.map((t) => t.id === id ? { ...t, ...updatedTransaction, id } : t))
     const deleteTransaction = (id) => setTransactions((p) => p.filter((t) => t.id !== id))
     const refreshTransactions = () => setTransactions(getTransactionsFromStorage())
 
@@ -181,7 +182,7 @@ const App = () => {
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/signup" element={<Signup onSignup={handleSignup} />} />
             <Route element={
-                <ProtectedRoute user={user} >
+                // <ProtectedRoute user={user} >
                     <Layout
                         user={user}
                         onLogout={handleLogout}
@@ -191,7 +192,7 @@ const App = () => {
                         deleteTransaction={deleteTransaction}
                         refreshTransactions={refreshTransactions}
                     />
-                </ProtectedRoute>
+                // </ProtectedRoute>
             }>
                 <Route
                     path="/" element={<Dashboard />}
